@@ -43,8 +43,8 @@ This project was developed for educational purposes.
 
 ## Sprints chronogram
 
--   [ ] Base project structure (1 week)
--   [ ] User management (2 week)
--   [ ] Task management (3 week)
+-   [ ] Base project structure (2 week)
+-   [ ] User management (4 week)
+-   [ ] Task management (6 week)
 
 Obs: If in the end there is too much "free time", i will create more sprints and goals.
