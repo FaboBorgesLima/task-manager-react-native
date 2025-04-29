@@ -18,7 +18,7 @@ export type PlayerCardProps = {
 
 export default function PlayerCard(props: PlayerCardProps): JSX.Element {
     return (
-        <View style={{ ...styles.container }}>
+        <View style={styles.container}>
             <Image
                 source={{ uri: props.imgUrl }}
                 style={{ width: 100, height: 100 }}
@@ -80,6 +80,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 16,
         padding: 8,
+        borderRadius: 16,
+        backgroundColor: "#eee",
     },
     title: {
         fontWeight: "bold",
