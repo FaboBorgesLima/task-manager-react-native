@@ -1,4 +1,5 @@
-import { Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Stack, Tabs } from "expo-router";
 
 export default function RootLayout() {
     return (
@@ -7,7 +8,19 @@ export default function RootLayout() {
                 headerShown: false,
             }}
         >
-            <Stack.Screen name="(tabs)" />
+            <Tabs.Screen
+                name="(tabs)"
+                options={{
+                    tabBarLabel: "Tabs",
+                    tabBarIcon: () => (
+                        <Ionicons
+                            name="accessibility"
+                            size={24}
+                            color="black"
+                        />
+                    ),
+                }}
+            />
         </Stack>
     );
 }
