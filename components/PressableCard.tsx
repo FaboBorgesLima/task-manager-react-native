@@ -1,19 +1,19 @@
 import { Rem } from "@/constants/rem";
 import { useColors } from "@/store/colors";
 import { Colors } from "@/style/getColors";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-export function Card(props: View["props"]) {
+export function PressableCard(props: React.ComponentProps<typeof Pressable>) {
     const palette = useColors((state) => state.palette);
     const styleSheet = getStyleSheet(palette);
     return (
-        <View
+        <Pressable
             {...props}
             style={{
                 ...((props.style as object) || {}),
                 ...styleSheet.container,
             }}
-        ></View>
+        ></Pressable>
     );
 }
 

@@ -1,23 +1,27 @@
 import { Card } from "@/components/Card";
-import { getColors } from "@/constants/colors";
-import { getTypo } from "@/constants/typo";
+import { Typo } from "@/constants/typo";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import formStyleSheet from "@/constants/formStyleSheet";
+import getFormStyleSheet from "@/style/getFormStyleSheet";
 import { AuthService } from "@faboborgeslima/task-manager-domain/dist/auth";
-import { useDatasource } from "@/store/datasource.store";
-import { AuthStorage } from "@/storage/auth.storage";
+import { AuthAsyncRepository } from "@/storage/auth.async.repository";
+import { MockRegisterValidation } from "@/services/mock-register.validation";
+import { useAuthStore } from "@/store/auth.store";
+import { useColors } from "@/store/colors";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const authService = new AuthService(
-        useDatasource((get) => get.auth),
-        useDatasource((get) => get.registerValidation)
+        new AuthAsyncRepository(),
+        new MockRegisterValidation()
     );
     const router = useRouter();
+    const authStore = useAuthStore();
+    const palette = useColors((state) => state.palette);
+    const formStyleSheet = getFormStyleSheet(palette);
 
     const handleLogin = async () => {
         try {
@@ -25,7 +29,7 @@ export default function Login() {
                 email,
                 password,
             });
-            new AuthStorage().setMe(auth);
+            authStore.setAuth(auth);
             router.replace("/(task)");
         } catch (error) {}
     };
@@ -41,12 +45,12 @@ export default function Login() {
                     <Ionicons
                         name="person-outline"
                         size={32}
-                        color={getColors().secondaryContrast}
+                        color={palette.secondaryContrast}
                     ></Ionicons>
                     <Text
                         style={{
-                            color: getColors().secondaryContrast,
-                            fontSize: 32,
+                            color: palette.secondaryContrast,
+                            fontSize: Typo.XLARGE,
                             textTransform: "lowercase",
                             fontWeight: "bold",
                         }}
@@ -58,9 +62,13 @@ export default function Login() {
                     <TextInput
                         placeholder="email"
                         onChangeText={(text) => setEmail(text)}
+                        inputMode="email"
+                        autoCapitalize="none"
+                        autoComplete="email"
                     ></TextInput>
                     <TextInput
                         placeholder="password"
+                        autoCapitalize="none"
                         onChangeText={(text) => setPassword(text)}
                         secureTextEntry={true}
                     ></TextInput>
@@ -78,8 +86,8 @@ export default function Login() {
                 href="/(auth)/register"
                 style={{
                     textAlign: "center",
-                    color: getColors().backgroundContrast,
-                    fontSize: getTypo().small,
+                    color: palette.backgroundContrast,
+                    fontSize: Typo.SMALL,
                 }}
             >
                 Don't have an account? Register here.

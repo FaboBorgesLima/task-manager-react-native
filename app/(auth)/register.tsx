@@ -1,30 +1,39 @@
 import { Card } from "@/components/Card";
-import { getColors } from "@/constants/colors";
-import formStyleSheet from "@/constants/formStyleSheet";
-import { useDatasource } from "@/store/datasource.store";
+import getFormStyleSheet from "@/style/getFormStyleSheet";
+import { MockRegisterValidation } from "@/services/mock-register.validation";
+import { useAuthRepository } from "@/store/repositories/auth.repository";
+import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthService } from "@faboborgeslima/task-manager-domain/dist/auth";
 import { User } from "@faboborgeslima/task-manager-domain/dist/user";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
+import { useColors } from "@/store/colors";
 
 export default function RegisterScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const router = useRouter();
-    const authService = new AuthService(
-        useDatasource((get) => get.auth),
-        useDatasource((get) => get.registerValidation)
-    );
-    const authStorage = useDatasource((get) => get.auth);
+    const authStore = useAuthStore();
+    const authRepository = useAuthRepository((state) => state.repository);
+    const palette = useColors((state) => state.palette);
+    const formStyleSheet = getFormStyleSheet(palette);
 
     const handleRegister = async () => {
+        const authService = new AuthService(
+            authRepository,
+            new MockRegisterValidation()
+        );
+
         try {
-            const user = new User({ name, email });
-            // Handle registration logic here
-            const registration = await authService.register(
+            const user = new User({
+                email,
+
+                name,
+            });
+            const auth = await authService.register(
                 user,
                 {
                     email,
@@ -32,11 +41,11 @@ export default function RegisterScreen() {
                 },
                 "mock"
             );
+
+            authStore.setAuth(auth);
             router.replace("/(task)");
-            authStorage.setMe(registration);
         } catch (error) {
-            // Handle error here
-            console.error("Registration failed:", error);
+            console.error(error);
         }
     };
 
@@ -51,11 +60,11 @@ export default function RegisterScreen() {
                     <Ionicons
                         name="person-outline"
                         size={32}
-                        color={getColors().secondaryContrast}
+                        color={palette.secondaryContrast}
                     ></Ionicons>
                     <Text
                         style={{
-                            color: getColors().secondaryContrast,
+                            color: palette.secondaryContrast,
                             fontSize: 32,
                             textTransform: "lowercase",
                             fontWeight: "bold",
@@ -67,15 +76,20 @@ export default function RegisterScreen() {
                 <View style={formStyleSheet.formBody}>
                     <TextInput
                         placeholder="name"
+                        autoCapitalize="none"
                         onChangeText={setName}
                     ></TextInput>
                     <TextInput
                         placeholder="email"
+                        inputMode="email"
+                        autoCapitalize="none"
+                        autoComplete="email"
                         onChangeText={setEmail}
                     ></TextInput>
                     <TextInput
                         secureTextEntry
                         placeholder="password"
+                        autoCapitalize="none"
                         onChangeText={setPassword}
                     ></TextInput>
 

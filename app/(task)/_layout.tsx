@@ -1,33 +1,38 @@
-import Header from "@/components/Header";
+import { useColors } from "@/store/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 export default function Layout() {
+    const palette = useColors((state) => state.palette);
     return (
         <Tabs
             screenOptions={{
                 headerShown: false,
+                tabBarStyle: {
+                    backgroundColor: palette.secondary,
+                },
+                tabBarActiveTintColor: "#fff",
+                tabBarInactiveTintColor: palette.secondaryContrast,
             }}
             initialRouteName="index"
         >
             <Tabs.Screen
-                name="form"
+                name="index"
                 options={{
-                    title: "Add Task",
-                    tabBarIcon: () => {
-                        return <Ionicons name="accessibility" size={32} />;
+                    title: "Tasks",
+                    tabBarIcon: ({ color }) => {
+                        return <Ionicons name="list" size={32} color={color} />;
                     },
                 }}
             />
             <Tabs.Screen
-                name="index"
+                name="create"
                 options={{
-                    title: "Task List",
-                    tabBarIcon: () => {
-                        return <Ionicons name="list" size={32} />;
-                    },
+                    title: "Add Task",
+                    href: null,
                 }}
             />
+            <Tabs.Screen name="[id]" options={{ href: null, title: "Task" }} />
         </Tabs>
     );
 }
