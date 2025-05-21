@@ -4,6 +4,42 @@ This application is a simple task manager that will use react-native for a mobil
 
 This project was developed for educational purposes.
 
+## Quick start
+
+This project is a expo project, for more information about expo, check the [expo documentation](https://docs.expo.dev/).
+
+```bash
+# Clone the repo
+git clone https://github.com/FaboBorgesLima/task-manager-react-native
+```
+
+```bash
+# Go to the project directory
+cd task-manager-react-native
+```
+
+```bash
+# Install dependencies
+npm install
+```
+
+```bash
+# Start the application
+npm start
+```
+
+From this point, you can use the expo app to scan the QR code that will be shown in your terminal.
+
+You can also use the expo app to run the application in your android or ios device.
+
+For creating a development build on Android, you can use the following command:
+
+Obs: You need to have the JDK 17 installed for this command to work. And this command will take a while to run, so go take a coffee ☕ .
+
+```bash
+eas build -p android --local
+```
+
 ## Goals
 
 -   User can create his profile and/or log in.
