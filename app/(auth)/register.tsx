@@ -1,15 +1,16 @@
 import { Card } from "@/components/Card";
 import getFormStyleSheet from "@/style/getFormStyleSheet";
-import { MockRegisterValidation } from "@/services/mock-register.validation";
+import { MockEmailValidation } from "@/services/mock-register.validation";
 import { useAuthRepository } from "@/store/repositories/auth.repository";
 import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthService } from "@faboborgeslima/task-manager-domain/dist/auth";
 import { User } from "@faboborgeslima/task-manager-domain/dist/user";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { useColors } from "@/store/colors";
+import { Typo } from "@/constants/typo";
 
 export default function RegisterScreen() {
     const [email, setEmail] = useState("");
@@ -21,12 +22,12 @@ export default function RegisterScreen() {
     const palette = useColors((state) => state.palette);
     const formStyleSheet = getFormStyleSheet(palette);
 
-    const handleRegister = async () => {
-        const authService = new AuthService(
-            authRepository,
-            new MockRegisterValidation()
-        );
+    const authService = new AuthService(
+        authRepository,
+        new MockEmailValidation()
+    );
 
+    const handleRegister = async () => {
         try {
             const user = new User({
                 email,
@@ -45,7 +46,8 @@ export default function RegisterScreen() {
             authStore.setAuth(auth);
             router.replace("/(task)");
         } catch (error) {
-            console.error(error);
+            console.error("Error registering user:", error);
+            // Handle error (e.g., show a message to the user)
         }
     };
 
@@ -78,6 +80,7 @@ export default function RegisterScreen() {
                         placeholder="name"
                         autoCapitalize="none"
                         onChangeText={setName}
+                        style={formStyleSheet.formInput}
                     ></TextInput>
                     <TextInput
                         placeholder="email"
@@ -85,12 +88,14 @@ export default function RegisterScreen() {
                         autoCapitalize="none"
                         autoComplete="email"
                         onChangeText={setEmail}
+                        style={formStyleSheet.formInput}
                     ></TextInput>
                     <TextInput
                         secureTextEntry
                         placeholder="password"
                         autoCapitalize="none"
                         onChangeText={setPassword}
+                        style={formStyleSheet.formInput}
                     ></TextInput>
 
                     <Pressable
@@ -105,6 +110,16 @@ export default function RegisterScreen() {
                     </Pressable>
                 </View>
             </Card>
+            <Link
+                href="/(auth)/login"
+                style={{
+                    textAlign: "center",
+                    color: palette.backgroundContrast,
+                    fontSize: Typo.SMALL,
+                }}
+            >
+                Already have an account? Login here.
+            </Link>
         </View>
     );
 }

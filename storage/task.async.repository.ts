@@ -4,6 +4,7 @@ import {
 } from "@faboborgeslima/task-manager-domain/dist/task";
 import { TaskConstructorProps } from "@faboborgeslima/task-manager-domain/dist/task/types/task-constructor-props";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { randomUUID } from "expo-crypto";
 
 export class TaskAsyncRepository implements TaskRepositoryInterface {
     private static readonly TASKS_KEY = "tasks";
@@ -38,7 +39,7 @@ export class TaskAsyncRepository implements TaskRepositoryInterface {
         if (taskIndex !== -1) {
             tasks[taskIndex] = task;
         } else {
-            task.id = (Math.random() * 1_000_000).toString(36);
+            task.id = randomUUID();
             tasks.push(task);
         }
         await this.saveAllTasks(tasks);
@@ -71,7 +72,7 @@ export class TaskAsyncRepository implements TaskRepositoryInterface {
 
     async delete(id: string): Promise<void> {
         const tasks = await this.getAllTasks();
-        const updatedTasks = tasks.filter((t) => t.id !== id);
+        const updatedTasks = tasks.filter((t) => t.id != id);
         await this.saveAllTasks(updatedTasks);
     }
 }

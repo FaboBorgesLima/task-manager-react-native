@@ -9,7 +9,10 @@ import { useRouter } from "expo-router";
 export default function TaskCard({ task }: { task: Task }) {
     const router = useRouter();
     const onPress = () => {
-        router.push(`/(task)/${task.id}`);
+        router.navigate({
+            pathname: "/(task)/[id]",
+            params: { id: task.id ?? "" },
+        });
     };
     return (
         <PressableCard

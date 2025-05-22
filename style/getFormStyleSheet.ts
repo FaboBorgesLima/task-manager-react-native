@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-import { getColors } from "./getColors";
+import { Colors } from "../store/colors";
 import { Typo } from "../constants/typo";
 import { Rem } from "@/constants/rem";
 
-export default (palette: ReturnType<typeof getColors>) =>
+export default (palette: Colors) =>
     StyleSheet.create({
         container: {
             display: "flex",
@@ -41,10 +41,19 @@ export default (palette: ReturnType<typeof getColors>) =>
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            flexDirection: "row",
+            gap: Rem.MEDIUM,
         },
         formButtonText: {
             color: palette.secondaryContrast,
             fontSize: Typo.LARGE,
             fontWeight: "bold",
+        },
+        formInput: {
+            padding: Rem.LARGE,
+            fontSize: Typo.LARGE,
+            borderRadius: Rem.XLARGE,
+            backgroundColor: palette.background,
+            color: palette.backgroundContrast,
         },
     });

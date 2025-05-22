@@ -7,6 +7,7 @@ import { User } from "@faboborgeslima/task-manager-domain/dist/user";
 import { UserAsyncRepository } from "./user.async.repository";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserProps } from "@faboborgeslima/task-manager-domain/dist/user/types/user-props";
+import { randomUUID } from "expo-crypto";
 
 export class AuthAsyncRepository implements AuthRepositoryInterface {
     constructor() {}
@@ -67,9 +68,9 @@ export class AuthAsyncRepository implements AuthRepositoryInterface {
         }
 
         const auths = await this.getAuths();
-        const auth = new Auth((Math.random() * 1_000_000).toString(36), user);
+        const auth = new Auth(randomUUID(), user);
         auth.user = user;
-        auth.token = (Math.random() * 1_000_000).toString(36);
+        auth.token = randomUUID();
 
         auths.push(auth);
 
@@ -83,10 +84,7 @@ export class AuthAsyncRepository implements AuthRepositoryInterface {
         let registerUser = await userStorage.saveOne(user);
         const auths = await this.getAuths();
 
-        const auth = new Auth(
-            (Math.random() * 1_000_000).toString(36),
-            registerUser
-        );
+        const auth = new Auth(randomUUID(), registerUser);
 
         auths.push(auth);
 

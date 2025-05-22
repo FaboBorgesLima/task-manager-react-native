@@ -4,6 +4,7 @@ import {
 } from "@faboborgeslima/task-manager-domain/dist/user";
 import { UserProps } from "@faboborgeslima/task-manager-domain/dist/user/types/user-props";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { randomUUID } from "expo-crypto";
 import { create } from "zustand";
 
 export class UserAsyncRepository implements UserRepositoryInterface {
@@ -38,7 +39,7 @@ export class UserAsyncRepository implements UserRepositoryInterface {
         if (userIndex !== -1) {
             users[userIndex] = user;
         } else {
-            user.id = (Math.random() * 1_000_000).toString(36);
+            user.id = randomUUID();
             users.push(user);
         }
 

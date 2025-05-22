@@ -37,7 +37,7 @@ For creating a development build on Android, you can use the following command:
 Obs: You need to have the JDK 17 installed for this command to work. And this command will take a while to run, so go take a coffee ☕ .
 
 ```bash
-eas build -p android --local
+eas build -p android --profile development --local
 ```
 
 ## Goals
@@ -84,3 +84,11 @@ eas build -p android --local
 -   [ ] Task management (6 week)
 
 Obs: If in the end there is too much "free time", i will create more sprints and goals.
+
+## Screenshots
+
+![Create Task](docs/screen-captures/create-task.jpg)
+![Edit Task](docs/screen-captures/edit-task.jpg)
+![Task List](docs/screen-captures/task-list.jpg)
+![Login](docs/screen-captures/login.jpg)
+![Register](docs/screen-captures/register.jpg)

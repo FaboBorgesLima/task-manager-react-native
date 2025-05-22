@@ -7,19 +7,8 @@ import { useEffect, useState } from "react";
 import { Text } from "react-native";
 
 export default function EditTask() {
-    const { id } = useLocalSearchParams();
+    const { id } = useLocalSearchParams<{ id: string }>();
     const navigation = useNavigation();
 
-    const [taskId, setTaskId] = useState<string | undefined>(undefined);
-
-    useEffect(() => {
-        const unsubscribe = navigation.addListener("focus", async () => {
-            setTaskId(id as string);
-        });
-        return () => {
-            unsubscribe();
-        };
-    }, [navigation]);
-
-    return <TaskForm taskId={taskId} />;
+    return <TaskForm taskId={id} />;
 }

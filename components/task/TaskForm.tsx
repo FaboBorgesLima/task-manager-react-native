@@ -7,23 +7,45 @@ import {
     TaskStatus,
 } from "@faboborgeslima/task-manager-domain/dist/task";
 import { useEffect, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import {
+    ImageComponent,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { useColors } from "@/store/colors";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Rem } from "@/constants/rem";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TaskForm(props: { taskId?: string }) {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [status, setStatus] = useState(TaskStatus.PENDING);
-    const [end, setEnd] = useState(new Date());
-    const [start, setStart] = useState(new Date());
-
     const authStore = useAuthStore();
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
     const formStyleSheet = useFormStyleSheet(palette);
 
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [status, setStatus] = useState(TaskStatus.PENDING);
+    const [start, setStart] = useState(new Date());
+    const [createdAt, setCreatedAt] = useState(new Date());
+    const [updatedAt, setUpdatedAt] = useState(new Date());
+    const [end, setEnd] = useState(new Date());
+
+    const [wholeDay, setWholeDay] = useState(true);
+
+    const [showStart, setShowStart] = useState(false);
+    const [showEnd, setShowEnd] = useState(false);
+
+    const [error, setError] = useState<string | null>(null);
+
     const router = useRouter();
+
+    const navigation = useNavigation();
 
     const onSubmit = async () => {
         const auth = authStore.auth;
@@ -31,18 +53,42 @@ export default function TaskForm(props: { taskId?: string }) {
             throw new Error("User not authenticated");
         }
 
-        const task = Task.make({
-            title,
-            description,
-            status,
-            end: end,
-            start: start,
-            userId: auth.user.id || "",
-        });
+        let taskToSave: Task;
+        try {
+            taskToSave = new Task({
+                id: props.taskId,
+                title,
+                description,
+                status,
+                start,
+                end,
+                createdAt,
+                updatedAt,
+                userId: auth.user.id as string,
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+                return;
+            }
+            setError("Unknown error");
+            return;
+        }
+        if (taskToSave.isEntireDay) {
+            taskToSave.setTaskToEntireDay();
+        }
 
-        task.id = props.taskId;
+        await taskRepository.save(taskToSave);
 
-        await taskRepository.save(task);
+        router.replace("/(task)");
+    };
+
+    const onDelete = async () => {
+        if (!props.taskId) {
+            return;
+        }
+
+        await taskRepository.delete(props.taskId);
 
         router.replace("/(task)");
     };
@@ -50,50 +96,172 @@ export default function TaskForm(props: { taskId?: string }) {
     useEffect(() => {
         const fetchTask = async () => {
             if (!props.taskId) {
+                setWholeDay(true);
+
+                setTitle("");
+                setDescription("");
+                setStatus(TaskStatus.PENDING);
+                setStart(new Date());
+                setEnd(new Date());
+
+                setCreatedAt(new Date());
+                setUpdatedAt(new Date());
                 return;
             }
-            const task = await taskRepository.findById(props.taskId);
-            if (task) {
-                setTitle(task.title);
-                setDescription(task.description || "");
-                setStatus(task.status);
-                setEnd(task.end);
-                setStart(task.start);
-            }
-        };
 
-        fetchTask();
-    }, [props.taskId]);
+            const taskFromRepo = await taskRepository.findById(props.taskId);
+
+            if (!taskFromRepo) {
+                return;
+            }
+
+            setWholeDay(taskFromRepo.isEntireDay);
+            setDescription(taskFromRepo.description || "");
+            setCreatedAt(taskFromRepo.createdAt);
+            setUpdatedAt(taskFromRepo.updatedAt);
+            setStatus(taskFromRepo.status);
+            setStart(taskFromRepo.start);
+            setEnd(taskFromRepo.end);
+            setTitle(taskFromRepo.title);
+        };
+        const unsubscribe = navigation.addListener("focus", () => {
+            fetchTask();
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [navigation]);
 
     return (
-        <View style={formStyleSheet.container}>
-            <Text style={formStyleSheet.formText}>
-                Please fill out the form to continue.
-            </Text>
+        <>
+            <ScrollView contentContainerStyle={formStyleSheet.container}>
+                <Card>
+                    <View style={formStyleSheet.formHeader}>
+                        <Ionicons
+                            name="sparkles"
+                            size={Rem.XLARGE}
+                            color={palette.secondaryContrast}
+                        ></Ionicons>
+                        <Text
+                            style={{
+                                color: palette.secondaryContrast,
+                                fontSize: 32,
+                                textTransform: "lowercase",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            {props.taskId ? "Edit Task" : "Create Task"}
+                        </Text>
+                        <Ionicons
+                            name="sparkles"
+                            size={Rem.XLARGE}
+                            color={palette.secondaryContrast}
+                        ></Ionicons>
+                    </View>
+                    <View style={formStyleSheet.formBody}>
+                        <TextInput
+                            placeholder="title"
+                            value={title}
+                            onChangeText={setTitle}
+                            style={formStyleSheet.formInput}
+                        ></TextInput>
 
-            <Card>
-                <View style={formStyleSheet.formBody}>
-                    <TextInput
-                        placeholder="title"
-                        value={title}
-                        onChangeText={(text) => setTitle(text)}
-                    ></TextInput>
+                        <TextInput
+                            placeholder="description"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                            style={formStyleSheet.formInput}
+                            multiline
+                        ></TextInput>
+                        <Pressable
+                            onPress={() => {
+                                setWholeDay(!wholeDay);
+                            }}
+                            style={formStyleSheet.formButton}
+                        >
+                            <Text style={formStyleSheet.formButtonText}>
+                                Whole Day {wholeDay ? "✔️" : "❌"}
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                            style={formStyleSheet.formButton}
+                            onPress={() => setShowStart(true)}
+                        >
+                            <Text style={formStyleSheet.formButtonText}>
+                                Start: {start.toLocaleDateString()}
+                            </Text>
+                        </Pressable>
+                        {!wholeDay ? (
+                            <Pressable
+                                style={formStyleSheet.formButton}
+                                onPress={() => setShowEnd(true)}
+                            >
+                                <Text style={formStyleSheet.formButtonText}>
+                                    End: {end.toLocaleDateString()}
+                                </Text>
+                            </Pressable>
+                        ) : null}
 
-                    <TextInput
-                        placeholder="description"
-                        value={description}
-                        onChangeText={(text) => setDescription(text)}
-                    ></TextInput>
-                    <Pressable
-                        style={formStyleSheet.formButton}
-                        onPress={() => {
-                            onSubmit();
-                        }}
-                    >
-                        <Text style={formStyleSheet.formButtonText}>Save</Text>
-                    </Pressable>
-                </View>
-            </Card>
-        </View>
+                        <View style={{ flexDirection: "row", gap: Rem.MEDIUM }}>
+                            {props.taskId ? (
+                                <Pressable
+                                    style={{
+                                        ...formStyleSheet.formButton,
+                                        width: "50%",
+                                    }}
+                                    onPress={onDelete}
+                                >
+                                    <Text style={formStyleSheet.formButtonText}>
+                                        Delete
+                                    </Text>
+                                    <Ionicons
+                                        name="trash"
+                                        size={Rem.XLARGE}
+                                        color={palette.secondaryContrast}
+                                    ></Ionicons>
+                                </Pressable>
+                            ) : null}
+                            <Pressable
+                                style={{
+                                    ...formStyleSheet.formButton,
+                                    width: props.taskId ? "50%" : "100%",
+                                }}
+                                onPress={() => {
+                                    onSubmit();
+                                }}
+                            >
+                                <Text style={formStyleSheet.formButtonText}>
+                                    Save
+                                </Text>
+                                <Ionicons
+                                    name="checkmark"
+                                    size={Rem.XLARGE}
+                                    color={palette.secondaryContrast}
+                                ></Ionicons>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Card>
+            </ScrollView>
+            {showStart ? (
+                <DateTimePicker
+                    value={start}
+                    onChange={(event, date) => {
+                        setShowStart(false);
+                        setStart(date || start);
+                    }}
+                ></DateTimePicker>
+            ) : null}
+            {showEnd ? (
+                <DateTimePicker
+                    value={end}
+                    onChange={(event, date) => {
+                        setEnd(date || end);
+                        setShowEnd(false);
+                    }}
+                ></DateTimePicker>
+            ) : null}
+        </>
     );
 }

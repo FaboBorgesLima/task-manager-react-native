@@ -7,7 +7,7 @@ import { Pressable, Text, TextInput, View } from "react-native";
 import getFormStyleSheet from "@/style/getFormStyleSheet";
 import { AuthService } from "@faboborgeslima/task-manager-domain/dist/auth";
 import { AuthAsyncRepository } from "@/storage/auth.async.repository";
-import { MockRegisterValidation } from "@/services/mock-register.validation";
+import { MockEmailValidation } from "@/services/mock-register.validation";
 import { useAuthStore } from "@/store/auth.store";
 import { useColors } from "@/store/colors";
 
@@ -16,7 +16,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const authService = new AuthService(
         new AuthAsyncRepository(),
-        new MockRegisterValidation()
+        new MockEmailValidation()
     );
     const router = useRouter();
     const authStore = useAuthStore();
@@ -65,12 +65,14 @@ export default function Login() {
                         inputMode="email"
                         autoCapitalize="none"
                         autoComplete="email"
+                        style={formStyleSheet.formInput}
                     ></TextInput>
                     <TextInput
                         placeholder="password"
                         autoCapitalize="none"
                         onChangeText={(text) => setPassword(text)}
                         secureTextEntry={true}
+                        style={formStyleSheet.formInput}
                     ></TextInput>
                     <Pressable
                         onPress={() => {

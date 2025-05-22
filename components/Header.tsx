@@ -9,6 +9,7 @@ import { useColors } from "@/store/colors";
 
 export default function Header(props: NativeStackHeaderProps) {
     const palette = useColors((state) => state.palette);
+
     return (
         <View
             style={[
@@ -19,7 +20,7 @@ export default function Header(props: NativeStackHeaderProps) {
             <Ionicons
                 name="moon-outline"
                 size={Rem.XLARGE}
-                color={getColors().secondaryContrast}
+                color={palette.secondaryContrast}
             ></Ionicons>
             <Text
                 style={{ ...styleSheet.text, color: palette.secondaryContrast }}

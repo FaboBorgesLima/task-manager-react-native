@@ -1,9 +1,9 @@
-import { RegisterValidationInterface } from "@faboborgeslima/task-manager-domain/dist/auth";
+import { EmailValidationServiceInterface } from "@faboborgeslima/task-manager-domain/dist/auth";
 import { User } from "@faboborgeslima/task-manager-domain/dist/user";
 
-export class MockRegisterValidation implements RegisterValidationInterface {
-    sendValidation(user: User): Promise<string> {
-        return Promise.resolve("123456");
+export class MockEmailValidation implements EmailValidationServiceInterface {
+    sendValidation(email: string): Promise<void> {
+        return Promise.resolve();
     }
 
     checkValidation(validation: string): Promise<boolean> {
