@@ -8,6 +8,7 @@ export default function Layout() {
         <Tabs
             screenOptions={{
                 headerShown: false,
+                header: () => null,
                 tabBarStyle: {
                     backgroundColor: palette.secondary,
                 },

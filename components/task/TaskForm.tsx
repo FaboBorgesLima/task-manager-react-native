@@ -7,22 +7,14 @@ import {
     TaskStatus,
 } from "@faboborgeslima/task-manager-domain/dist/task";
 import { useEffect, useState } from "react";
-import {
-    ImageComponent,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useColors } from "@/store/colors";
 import { useNavigation, useRouter } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Rem } from "@/constants/rem";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function TaskForm(props: { taskId?: string }) {
+export default function TaskForm({ taskId }: { taskId?: string }) {
     const authStore = useAuthStore();
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
@@ -56,7 +48,7 @@ export default function TaskForm(props: { taskId?: string }) {
         let taskToSave: Task;
         try {
             taskToSave = new Task({
-                id: props.taskId,
+                id: taskId,
                 title,
                 description,
                 status,
@@ -74,7 +66,7 @@ export default function TaskForm(props: { taskId?: string }) {
             setError("Unknown error");
             return;
         }
-        if (taskToSave.isEntireDay) {
+        if (wholeDay) {
             taskToSave.setTaskToEntireDay();
         }
 
@@ -84,18 +76,18 @@ export default function TaskForm(props: { taskId?: string }) {
     };
 
     const onDelete = async () => {
-        if (!props.taskId) {
+        if (!taskId) {
             return;
         }
 
-        await taskRepository.delete(props.taskId);
+        await taskRepository.delete(taskId);
 
         router.replace("/(task)");
     };
 
     useEffect(() => {
         const fetchTask = async () => {
-            if (!props.taskId) {
+            if (!taskId) {
                 setWholeDay(true);
 
                 setTitle("");
@@ -109,7 +101,7 @@ export default function TaskForm(props: { taskId?: string }) {
                 return;
             }
 
-            const taskFromRepo = await taskRepository.findById(props.taskId);
+            const taskFromRepo = await taskRepository.findById(taskId);
 
             if (!taskFromRepo) {
                 return;
@@ -131,7 +123,7 @@ export default function TaskForm(props: { taskId?: string }) {
         return () => {
             unsubscribe();
         };
-    }, [navigation]);
+    }, [navigation, taskId]);
 
     return (
         <>
@@ -151,7 +143,7 @@ export default function TaskForm(props: { taskId?: string }) {
                                 fontWeight: "bold",
                             }}
                         >
-                            {props.taskId ? "Edit Task" : "Create Task"}
+                            {taskId ? "Edit Task" : "Create Task"}
                         </Text>
                         <Ionicons
                             name="sparkles"
@@ -204,7 +196,7 @@ export default function TaskForm(props: { taskId?: string }) {
                         ) : null}
 
                         <View style={{ flexDirection: "row", gap: Rem.MEDIUM }}>
-                            {props.taskId ? (
+                            {taskId ? (
                                 <Pressable
                                     style={{
                                         ...formStyleSheet.formButton,
@@ -225,7 +217,7 @@ export default function TaskForm(props: { taskId?: string }) {
                             <Pressable
                                 style={{
                                     ...formStyleSheet.formButton,
-                                    width: props.taskId ? "50%" : "100%",
+                                    width: taskId ? "50%" : "100%",
                                 }}
                                 onPress={() => {
                                     onSubmit();
