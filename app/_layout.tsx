@@ -7,6 +7,7 @@ export default function RootLayout() {
             screenOptions={{
                 headerShown: true,
                 header: (props) => <Header {...props} />,
+                title: "Task Manager",
             }}
             initialRouteName="(auth)/login"
         ></Stack>

@@ -54,20 +54,26 @@ eas build -p android --profile development --local
 
 ## Goals check-list
 
--   [ ] Base project structure
-    -   [ ] Styles
-    -   [ ] Routes
+-   [x] Base project structure
+    -   [x] Styles
+    -   [x] Routes
 -   [ ] User management
-    -   [ ] Create user
-    -   [ ] Login
+    -   [x] Create user
+    -   [x] Login
     -   [ ] Profile
     -   [ ] Edit user name
     -   [ ] Logout
 -   [ ] Task management
-    -   [ ] Create
-    -   [ ] Edit
+    -   [x] Create
+    -   [x] Edit
     -   [ ] View daily tasks
     -   [ ] View tasks as calendar
+
+## Updates since last check point
+
+I used zustand for state management, so the application is more organized and easier to maintain.
+
+I separated components like `Card`, `PressableCard`, `TaskCard` and `TaskForm` to make the code more modular and reusable.
 
 ## Screens prototype
 
@@ -79,7 +85,7 @@ eas build -p android --profile development --local
 
 ## Sprints chronogram
 
--   [ ] Base project structure (2 week)
+-   [x] Base project structure (2 week)
 -   [ ] User management (4 week)
 -   [ ] Task management (6 week)
 
