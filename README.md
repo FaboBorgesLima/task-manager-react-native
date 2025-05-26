@@ -75,6 +75,8 @@ I used zustand for state management, so the application is more organized and ea
 
 I separated components like `Card`, `PressableCard`, `TaskCard` and `TaskForm` to make the code more modular and reusable.
 
+[video](https://youtu.be/uCoLGUzustU)
+
 ## Screens prototype
 
 [Wiki figma page](https://github.com/FaboBorgesLima/task-manager-nestjs/wiki/Screens-prototypes)
