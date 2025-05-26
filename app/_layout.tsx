@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import { useColors } from "@/store/colors";
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
@@ -7,7 +6,7 @@ export default function RootLayout() {
         <Stack
             screenOptions={{
                 headerShown: true,
-                header: Header,
+                header: (props) => <Header {...props} />,
             }}
             initialRouteName="(auth)/login"
         ></Stack>
