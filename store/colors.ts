@@ -12,6 +12,10 @@ export const useColors = create<{
         pure: "#fff",
         primary: "#9333ea",
         primaryContrast: "#fff",
+        warning: "#ffe4b5",
+        warningContrast: "#f59e0b",
+        success: "#16a34a",
+        successContrast: "#fff",
     },
     setTheme: (dark: boolean) => set({}),
 }));
@@ -24,4 +28,8 @@ export type Colors = {
     pure: string;
     primary: string;
     primaryContrast: string;
+    warning: string;
+    warningContrast: string;
+    success: string;
+    successContrast: string;
 };

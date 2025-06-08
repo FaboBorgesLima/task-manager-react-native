@@ -18,6 +18,7 @@ export default function Index() {
     const router = useRouter();
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -25,6 +26,7 @@ export default function Index() {
             if (!auth) {
                 throw new Error("User not authenticated");
             }
+
             const tasks = await taskRepository.findByUser(auth.user.id || "");
             setTasks(tasks);
         };
@@ -34,14 +36,29 @@ export default function Index() {
         });
 
         return () => unsubscribe();
-    }, [navigation]);
+    }, [navigation, refreshing]);
 
     return (
         <>
             <FlatList
                 data={tasks}
-                style={{ gap: 16, flex: 1, flexDirection: "column" }}
-                renderItem={({ item }) => <TaskCard task={item}></TaskCard>}
+                style={{
+                    gap: Rem.MEDIUM,
+                    flex: 1,
+                    flexDirection: "column",
+                    padding: Rem.LARGE,
+                }}
+                renderItem={({ item }) => (
+                    <TaskCard
+                        task={item}
+                        setTask={() => {
+                            // this forces the FlatList to re-render
+                            // and show the updated task list
+                            // after a task is created or updated
+                            setRefreshing(!refreshing);
+                        }}
+                    ></TaskCard>
+                )}
                 keyExtractor={(item) => item.id || ""}
             ></FlatList>
             <Pressable

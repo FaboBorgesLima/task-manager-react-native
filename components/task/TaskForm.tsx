@@ -13,6 +13,7 @@ import { useNavigation, useRouter } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Rem } from "@/constants/rem";
 import { Ionicons } from "@expo/vector-icons";
+import { ShowHours } from "../ShowHours";
 
 export default function TaskForm({ taskId }: { taskId?: string }) {
     const authStore = useAuthStore();
@@ -23,15 +24,19 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState(TaskStatus.PENDING);
-    const [start, setStart] = useState(new Date());
+
     const [createdAt, setCreatedAt] = useState(new Date());
     const [updatedAt, setUpdatedAt] = useState(new Date());
+
+    const [start, setStart] = useState(new Date());
     const [end, setEnd] = useState(new Date());
+    const [day, setDay] = useState(new Date());
 
     const [wholeDay, setWholeDay] = useState(true);
 
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
+    const [showDay, setShowDay] = useState(false);
 
     const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +51,16 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
         }
 
         let taskToSave: Task;
+
+        end.setDate(day.getDate());
+        start.setDate(day.getDate());
+
+        end.setMonth(day.getMonth());
+        start.setMonth(day.getMonth());
+
+        end.setFullYear(day.getFullYear());
+        start.setFullYear(day.getFullYear());
+
         try {
             taskToSave = new Task({
                 id: taskId,
@@ -66,6 +81,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
             setError("Unknown error");
             return;
         }
+
         if (wholeDay) {
             taskToSave.setTaskToEntireDay();
         }
@@ -93,8 +109,10 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                 setTitle("");
                 setDescription("");
                 setStatus(TaskStatus.PENDING);
+
                 setStart(new Date());
                 setEnd(new Date());
+                setDay(new Date());
 
                 setCreatedAt(new Date());
                 setUpdatedAt(new Date());
@@ -112,10 +130,13 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
             setCreatedAt(taskFromRepo.createdAt);
             setUpdatedAt(taskFromRepo.updatedAt);
             setStatus(taskFromRepo.status);
+
+            setDay(taskFromRepo.start);
             setStart(taskFromRepo.start);
             setEnd(taskFromRepo.end);
             setTitle(taskFromRepo.title);
         };
+
         const unsubscribe = navigation.addListener("focus", () => {
             fetchTask();
         });
@@ -168,31 +189,53 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                         ></TextInput>
                         <Pressable
                             onPress={() => {
+                                setShowDay(true);
+                            }}
+                            style={formStyleSheet.formButton}
+                        >
+                            <Text style={formStyleSheet.formButtonText}>
+                                {day.toLocaleDateString()}
+                            </Text>
+                            <Ionicons
+                                name="calendar"
+                                size={Rem.XLARGE}
+                                color={palette.secondaryContrast}
+                            ></Ionicons>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => {
                                 setWholeDay(!wholeDay);
                             }}
                             style={formStyleSheet.formButton}
                         >
                             <Text style={formStyleSheet.formButtonText}>
-                                Whole Day {wholeDay ? "✔️" : "❌"}
+                                Whole Day
                             </Text>
+                            <Ionicons
+                                name={
+                                    wholeDay
+                                        ? "checkmark-circle"
+                                        : "ellipse-outline"
+                                }
+                                size={Rem.XLARGE}
+                                color={palette.secondaryContrast}
+                            ></Ionicons>
                         </Pressable>
-                        <Pressable
-                            style={formStyleSheet.formButton}
-                            onPress={() => setShowStart(true)}
-                        >
-                            <Text style={formStyleSheet.formButtonText}>
-                                Start: {start.toLocaleDateString()}
-                            </Text>
-                        </Pressable>
+
                         {!wholeDay ? (
-                            <Pressable
-                                style={formStyleSheet.formButton}
-                                onPress={() => setShowEnd(true)}
-                            >
-                                <Text style={formStyleSheet.formButtonText}>
-                                    End: {end.toLocaleDateString()}
-                                </Text>
-                            </Pressable>
+                            <>
+                                <ShowHours
+                                    title="Start"
+                                    date={start}
+                                    onPress={() => setShowStart(true)}
+                                ></ShowHours>
+
+                                <ShowHours
+                                    title="End"
+                                    date={end}
+                                    onPress={() => setShowEnd(true)}
+                                ></ShowHours>
+                            </>
                         ) : null}
 
                         <View style={{ flexDirection: "row", gap: Rem.MEDIUM }}>
@@ -236,6 +279,16 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                     </View>
                 </Card>
             </ScrollView>
+            {showDay ? (
+                <DateTimePicker
+                    value={day}
+                    onChange={(event, date) => {
+                        setShowDay(false);
+                        setDay(date || day);
+                    }}
+                    mode="date"
+                ></DateTimePicker>
+            ) : null}
             {showStart ? (
                 <DateTimePicker
                     value={start}
@@ -243,6 +296,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                         setShowStart(false);
                         setStart(date || start);
                     }}
+                    mode="time"
                 ></DateTimePicker>
             ) : null}
             {showEnd ? (
@@ -252,6 +306,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                         setEnd(date || end);
                         setShowEnd(false);
                     }}
+                    mode="time"
                 ></DateTimePicker>
             ) : null}
         </>
