@@ -1,93 +1,110 @@
+import AddTaskButton from "@/components/task/AddTaskButton";
 import TaskCard from "@/components/task/TaskCard";
+import TaskList from "@/components/task/TaskList";
 import { Rem } from "@/constants/rem";
-import { Typo } from "@/constants/typo";
 
 import { useAuthStore } from "@/store/auth.store";
 import { useColors } from "@/store/colors";
 import { useTaskRepository } from "@/store/repositories/task.repository";
-import { Ionicons } from "@expo/vector-icons";
 import { Task } from "@faboborgeslima/task-manager-domain/dist/task";
+import { TaskService } from "@faboborgeslima/task-manager-domain/dist/task/task.service";
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, SafeAreaView, StyleSheet, View } from "react-native";
 
 export default function Index() {
-    const [tasks, setTasks] = useState<Task[]>([]);
     const authStore = useAuthStore();
     const navigation = useNavigation();
     const router = useRouter();
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
-    const [refreshing, setRefreshing] = useState(false);
+    const pageSize = 30;
+
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [page, setPage] = useState(0);
 
     useEffect(() => {
         const fetchTasks = async () => {
             const auth = authStore.auth;
+
             if (!auth) {
                 throw new Error("User not authenticated");
             }
 
-            const tasks = await taskRepository.findByUser(auth.user.id || "");
-            setTasks(tasks);
+            const taskService = new TaskService(taskRepository);
+
+            const tasks = await taskService.findByUser(
+                auth.user,
+                auth.user,
+                pageSize,
+                page
+            );
+
+            if (tasks.length === 0 && page > 0) setTasks(tasks);
         };
 
         const unsubscribe = navigation.addListener("focus", () => {
+            console.debug("Fetching tasks for page:", page);
             fetchTasks();
         });
 
         return () => unsubscribe();
-    }, [navigation, refreshing]);
+    }, [navigation, page]);
 
     return (
-        <>
+        <SafeAreaView
+            style={[styles.safeArea, { backgroundColor: palette.background }]}
+        >
             <FlatList
                 data={tasks}
-                style={{
-                    gap: Rem.MEDIUM,
-                    flex: 1,
-                    flexDirection: "column",
-                    padding: Rem.LARGE,
+                style={styles.listContainer}
+                contentContainerStyle={{
+                    gap: Rem.LARGE,
+                    paddingVertical: Rem.LARGE,
+                }}
+                onEndReached={() => {
+                    if (tasks.length < pageSize * (page + 1)) return; // No more tasks to load
+
+                    setPage((prevPage) => prevPage + 1);
                 }}
                 renderItem={({ item }) => (
                     <TaskCard
                         task={item}
-                        setTask={() => {
-                            // this forces the FlatList to re-render
-                            // and show the updated task list
-                            // after a task is created or updated
-                            setRefreshing(!refreshing);
+                        setTask={(task) => {
+                            const updatedTasks = tasks.map((t) =>
+                                t.id === task.id ? task : t
+                            );
+                            setTasks(updatedTasks);
                         }}
                     ></TaskCard>
                 )}
                 keyExtractor={(item) => item.id || ""}
             ></FlatList>
-            <Pressable
-                style={{
-                    backgroundColor: palette.primary,
-                    padding: Rem.LARGE,
-                    flexDirection: "row",
-                    gap: Rem.MEDIUM,
-                    justifyContent: "space-between",
-                }}
-                onPress={() => {
-                    router.navigate("/(task)/create");
-                }}
-            >
-                <Text
-                    style={{
-                        color: palette.primaryContrast,
-                        fontSize: Typo.LARGE,
-                        fontWeight: "bold",
+            <View style={styles.buttonContainer}>
+                <AddTaskButton
+                    onPress={() => {
+                        router.push("/(task)/create");
                     }}
-                >
-                    Add Task
-                </Text>
-                <Ionicons
-                    name="add"
-                    size={Rem.XLARGE}
-                    color={palette.primaryContrast}
                 />
-            </Pressable>
-        </>
+            </View>
+        </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "transparent",
+    },
+    flatList: {
+        paddingHorizontal: Rem.LARGE,
+
+        height: "auto",
+    },
+    buttonContainer: {},
+    listContainer: {
+        paddingHorizontal: Rem.LARGE,
+
+        height: "auto",
+    },
+});

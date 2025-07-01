@@ -100,3 +100,9 @@ Obs: If in the end there is too much "free time", i will create more sprints and
 ![Task List](docs/screen-captures/task-list.jpg)
 ![Login](docs/screen-captures/login.jpg)
 ![Register](docs/screen-captures/register.jpg)
+
+## Diference between unitary and e2e tests
+
+Unitary tests are used to test a single unit of code, like a function or a class, in isolation. They are fast and help to ensure that the code works as expected.
+
+E2E (end-to-end) tests, on the other hand, test the entire application flow, from start to finish, simulating real user scenarios. They are slower and more complex but help to ensure that all parts of the application work together as expected.

@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { useColors } from "@/store/colors";
 import { Typo } from "@/constants/typo";
+import { useEmailValidation } from "@/store/register.validation";
 
 export default function RegisterScreen() {
     const [email, setEmail] = useState("");
@@ -21,11 +22,11 @@ export default function RegisterScreen() {
     const authRepository = useAuthRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
     const formStyleSheet = getFormStyleSheet(palette);
-
-    const authService = new AuthService(
-        authRepository,
-        new MockEmailValidation()
+    const emailValidationService = useEmailValidation(
+        (state) => state.emailValidationService
     );
+
+    const authService = new AuthService(authRepository, emailValidationService);
 
     const handleRegister = async () => {
         try {

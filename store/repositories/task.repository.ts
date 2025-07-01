@@ -1,4 +1,4 @@
-import { TaskAsyncRepository } from "@/storage/task.async.repository";
+import { TaskAsyncRepository } from "@/storage/asyncStorage/task.async.repository";
 import { TaskRepositoryInterface } from "@faboborgeslima/task-manager-domain/dist/task";
 import { create } from "zustand";
 

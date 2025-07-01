@@ -46,6 +46,11 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
 
     const onSubmit = async () => {
         const auth = authStore.auth;
+        console.debug("Submitting task form", {
+            taskId,
+            title,
+            description,
+        });
         if (!auth) {
             throw new Error("User not authenticated");
         }
@@ -85,8 +90,16 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
         if (wholeDay) {
             taskToSave.setTaskToEntireDay();
         }
-
-        await taskRepository.save(taskToSave);
+        try {
+            await taskRepository.save(taskToSave);
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+                return;
+            }
+            setError("Unknown error");
+            return;
+        }
 
         router.replace("/(task)");
     };
@@ -148,7 +161,9 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
 
     return (
         <>
-            <ScrollView contentContainerStyle={formStyleSheet.container}>
+            <ScrollView
+                contentContainerStyle={[formStyleSheet.container, { flex: 0 }]}
+            >
                 <Card>
                     <View style={formStyleSheet.formHeader}>
                         <Ionicons
@@ -159,7 +174,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                         <Text
                             style={{
                                 color: palette.secondaryContrast,
-                                fontSize: 32,
+                                fontSize: Rem.XLARGE,
                                 textTransform: "lowercase",
                                 fontWeight: "bold",
                             }}
@@ -237,7 +252,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                                 ></ShowHours>
                             </>
                         ) : null}
-
+                        <Text>{error}</Text>
                         <View style={{ flexDirection: "row", gap: Rem.MEDIUM }}>
                             {taskId ? (
                                 <Pressable
@@ -257,6 +272,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                                     ></Ionicons>
                                 </Pressable>
                             ) : null}
+
                             <Pressable
                                 style={{
                                     ...formStyleSheet.formButton,

@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 
 export default function Layout() {
     const palette = useColors((state) => state.palette);
+
     return (
         <Tabs
             screenOptions={{

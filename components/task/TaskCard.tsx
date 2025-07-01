@@ -45,7 +45,7 @@ export default function TaskCard({
     }, [taskRepository]);
 
     return (
-        <Card style={{ padding: Rem.LARGE, marginBottom: Rem.LARGE }}>
+        <Card style={{ padding: Rem.LARGE }}>
             <View style={styleSheet.container}>
                 <View style={styleSheet.bodyContainer}>
                     <Text style={{ fontSize: Typo.MEDIUM, fontWeight: "bold" }}>
@@ -127,7 +127,6 @@ const styleSheet = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         gap: Rem.SMALL,
-        marginTop: Rem.SMALL,
     },
     textIconContainer: {
         display: "flex",

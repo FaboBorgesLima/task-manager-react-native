@@ -1,4 +1,4 @@
-import { AuthAsyncRepository } from "@/storage/auth.async.repository";
+import { AuthAsyncRepository } from "@/storage/asyncStorage/auth.async.repository";
 import { AuthRepositoryInterface } from "@faboborgeslima/task-manager-domain/dist/auth";
 import { create } from "zustand";
 
