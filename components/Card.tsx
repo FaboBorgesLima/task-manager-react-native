@@ -1,11 +1,13 @@
 import { Rem } from "@/constants/rem";
 import { useColors } from "@/store/colors";
+import { forwardRef } from "react";
 import { StyleSheet, View } from "react-native";
 
-export function Card(props: View["props"]) {
+export const Card = forwardRef<View, View["props"]>((props, ref) => {
     const palette = useColors((state) => state.palette);
     return (
         <View
+            ref={ref}
             {...props}
             style={{
                 ...((props.style as object) || {}),
@@ -14,7 +16,7 @@ export function Card(props: View["props"]) {
             }}
         ></View>
     );
-}
+});
 
 export const styleSheet = StyleSheet.create({
     container: {

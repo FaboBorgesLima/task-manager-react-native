@@ -34,6 +34,16 @@ export default function Layout() {
                     href: null,
                 }}
             />
+            <Tabs.Screen
+                name="profile"
+                options={{
+                    tabBarIcon: ({ color }) => {
+                        return (
+                            <Ionicons name="person" size={32} color={color} />
+                        );
+                    },
+                }}
+            />
             <Tabs.Screen name="[id]" options={{ href: null, title: "Task" }} />
         </Tabs>
     );

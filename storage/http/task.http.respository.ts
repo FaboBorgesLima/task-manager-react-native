@@ -13,10 +13,19 @@ export class TaskHttpRespository implements TaskRepositoryInterface {
     }
 
     private async updateTask(id: string, task: Task): Promise<Task> {
+        console.info(`Updating task with id: ${id}`, task);
         const response = await this.httpClient.put<TaskHttpProps>(
             `/tasks/${id}`,
-            task
+            {
+                title: task.title,
+                description: task.description,
+                start: task.start,
+                end: task.end,
+                status: task.status,
+                userId: task.userId,
+            }
         );
+        console.info(`Task with id: ${id} updated successfully`, response.data);
 
         return new Task({
             ...response.data,
@@ -76,14 +85,14 @@ export class TaskHttpRespository implements TaskRepositoryInterface {
         size: number,
         page: number
     ): Promise<Task[]> {
-        const response = await this.httpClient.get<TaskHttpProps[]>(
-            `/tasks/users/${userId}/`,
+        const response = await this.httpClient.get<{ tasks: TaskHttpProps[] }>(
+            `/tasks/users/${userId}`,
             {
                 params: { size, page },
             }
         );
 
-        return response.data.map(
+        return response.data.tasks.map(
             (task) =>
                 new Task({
                     ...task,
@@ -104,7 +113,10 @@ export class TaskHttpRespository implements TaskRepositoryInterface {
         size: number,
         page: number
     ): Promise<Task[]> {
-        const response = await this.httpClient.get<TaskHttpProps[]>(
+        console.debug(
+            `Finding tasks for user ${userId} between ${startDate.toISOString()} and ${endDate.toISOString()}`
+        );
+        const response = await this.httpClient.get<{ tasks: TaskHttpProps[] }>(
             `/tasks/users/${userId}`,
             {
                 params: {
@@ -115,7 +127,8 @@ export class TaskHttpRespository implements TaskRepositoryInterface {
                 },
             }
         );
-        return response.data.map(
+
+        return response.data.tasks.map(
             (task) =>
                 new Task({
                     ...task,

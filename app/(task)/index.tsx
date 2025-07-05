@@ -2,20 +2,23 @@ import AddTaskButton from "@/components/task/AddTaskButton";
 import TaskCard from "@/components/task/TaskCard";
 import TaskList from "@/components/task/TaskList";
 import { Rem } from "@/constants/rem";
+import { Typo } from "@/constants/typo";
 
 import { useAuthStore } from "@/store/auth.store";
 import { useColors } from "@/store/colors";
 import { useTaskRepository } from "@/store/repositories/task.repository";
 import { Task } from "@faboborgeslima/task-manager-domain/dist/task";
 import { TaskService } from "@faboborgeslima/task-manager-domain/dist/task/task.service";
+import { AxiosError } from "axios";
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, SafeAreaView, StyleSheet, View } from "react-native";
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
     const authStore = useAuthStore();
     const navigation = useNavigation();
     const router = useRouter();
+    const [errors, setErrors] = useState<string[]>([]);
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
     const pageSize = 30;
@@ -32,19 +35,32 @@ export default function Index() {
             }
 
             const taskService = new TaskService(taskRepository);
+            let tasks = [];
+            try {
+                tasks = await taskService.findByUser(
+                    auth.user,
+                    auth.user,
+                    pageSize,
+                    page
+                );
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    setErrors([
+                        "Failed to fetch tasks. Please try again later.",
+                    ]);
+                } else {
+                    setErrors([
+                        "An unexpected error occurred while fetching tasks",
+                    ]);
+                }
+                return;
+            }
 
-            const tasks = await taskService.findByUser(
-                auth.user,
-                auth.user,
-                pageSize,
-                page
-            );
-
-            if (tasks.length === 0 && page > 0) setTasks(tasks);
+            setTasks(tasks);
         };
 
         const unsubscribe = navigation.addListener("focus", () => {
-            console.debug("Fetching tasks for page:", page);
+            console.debug("Fetching tasks on focus");
             fetchTasks();
         });
 
@@ -55,6 +71,9 @@ export default function Index() {
         <SafeAreaView
             style={[styles.safeArea, { backgroundColor: palette.background }]}
         >
+            {tasks.length === 0 && (
+                <Text style={{ fontSize: Typo.LARGE }}>No tasks found</Text>
+            )}
             <FlatList
                 data={tasks}
                 style={styles.listContainer}
