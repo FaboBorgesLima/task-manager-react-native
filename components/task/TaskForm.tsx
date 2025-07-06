@@ -166,7 +166,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
     return (
         <>
             <ScrollView
-                contentContainerStyle={[formStyleSheet.container, { flex: 0 }]}
+                contentContainerStyle={[formStyleSheet.container, { flex: 1 }]}
             >
                 <Card>
                     <View style={formStyleSheet.formHeader}>

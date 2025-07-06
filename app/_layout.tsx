@@ -20,23 +20,21 @@ export default function RootLayout() {
     const setTaskRepository = useTaskRepository((state) => state.setRepository);
     const setUserRepository = useUserRepository((state) => state.setRepository);
     const setAuthRepository = useAuthRepository((state) => state.setRepository);
+    const authRepository = useAuthRepository((state) => state.repository);
     const setValidationService = useEmailValidation(
         (state) => state.setEmailValidationService
     );
 
     const meRepository = new MeRepository();
     const { auth, setAuth } = useAuthStore();
-
+    // See if the user is already authenticated
     useEffect(() => {
+        return;
         console.debug(
             "Initializing Axios instance with base URL:",
             process.env.EXPO_PUBLIC_API_URL,
             axiosInstance
         );
-
-        if (axiosInstance?.getUri() === process.env.EXPO_PUBLIC_API_URL) {
-            return;
-        }
 
         console.debug(
             "Creating new Axios instance with base URL:",
@@ -50,20 +48,36 @@ export default function RootLayout() {
         });
 
         setAxiosInstance(newInstance);
+    }, []);
 
+    useEffect(() => {
         async function initMe() {
             const me = await meRepository.getMe();
+
             if (me) {
                 console.debug(
                     "Setting authenticated user from MeRepository:",
                     me
                 );
-                setAuth(me);
+                try {
+                    const authFromToken = await authRepository.fromToken(
+                        me.token
+                    );
+                    console.debug(
+                        "Setting authenticated user from token:",
+                        authFromToken
+                    );
+                    setAuth(authFromToken);
+                } catch (error) {
+                    console.error("Error fetching user from token:", error);
+                    setAuth(null);
+                    meRepository.clearMe();
+                }
             }
         }
 
         initMe();
-    }, []);
+    }, [authRepository]);
 
     useEffect(() => {
         if (!axiosInstance) {
