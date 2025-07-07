@@ -6,7 +6,7 @@ import { useColors } from "@/store/colors";
 import { useUserRepository } from "@/store/repositories/user.repository";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View, Alert } from "react-native";
 
 export default function Profile() {
