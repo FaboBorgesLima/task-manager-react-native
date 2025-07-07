@@ -60,9 +60,9 @@ eas build -p android --profile development --local
 -   [ ] User management
     -   [x] Create user
     -   [x] Login
-    -   [ ] Profile
+    -   [x] Profile
     -   [ ] Edit user name
-    -   [ ] Logout
+    -   [x] Logout
 -   [ ] Task management
     -   [x] Create
     -   [x] Edit

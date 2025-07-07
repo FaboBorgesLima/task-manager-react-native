@@ -29,7 +29,8 @@ export default function RootLayout() {
     const { auth, setAuth } = useAuthStore();
     // See if the user is already authenticated
     useEffect(() => {
-        if (process.env.LOCAL_STORAGE === "true") {
+        console.debug(process.env);
+        if (process.env.EXPO_PUBLIC_LOCAL_STORAGE === "true") {
             console.debug("Using local storage for Axios instance.");
             return;
         }
