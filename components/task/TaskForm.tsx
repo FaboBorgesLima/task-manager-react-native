@@ -14,6 +14,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Rem } from "@/constants/rem";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowHours } from "../ShowHours";
+import { Loading } from "../Loading";
 
 export default function TaskForm({ taskId }: { taskId?: string }) {
     const authStore = useAuthStore();
@@ -24,6 +25,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState(TaskStatus.PENDING);
+    const [loading, setLoading] = useState(false);
 
     const [createdAt, setCreatedAt] = useState(new Date());
     const [updatedAt, setUpdatedAt] = useState(new Date());
@@ -91,7 +93,9 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
             taskToSave.setTaskToEntireDay();
         }
         try {
+            setLoading(true);
             await taskRepository.save(taskToSave);
+            setLoading(false);
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);
@@ -133,8 +137,8 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
             }
 
             const taskFromRepo = await taskRepository.findById(taskId);
-
             if (!taskFromRepo) {
+                setError("Task not found");
                 return;
             }
 
@@ -162,7 +166,7 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
     return (
         <>
             <ScrollView
-                contentContainerStyle={[formStyleSheet.container, { flex: 0 }]}
+                contentContainerStyle={[formStyleSheet.container, { flex: 1 }]}
             >
                 <Card>
                     <View style={formStyleSheet.formHeader}>
@@ -273,24 +277,28 @@ export default function TaskForm({ taskId }: { taskId?: string }) {
                                 </Pressable>
                             ) : null}
 
-                            <Pressable
-                                style={{
-                                    ...formStyleSheet.formButton,
-                                    width: taskId ? "50%" : "100%",
-                                }}
-                                onPress={() => {
-                                    onSubmit();
-                                }}
-                            >
-                                <Text style={formStyleSheet.formButtonText}>
-                                    Save
-                                </Text>
-                                <Ionicons
-                                    name="checkmark"
-                                    size={Rem.XLARGE}
-                                    color={palette.secondaryContrast}
-                                ></Ionicons>
-                            </Pressable>
+                            {!loading ? (
+                                <Pressable
+                                    style={{
+                                        ...formStyleSheet.formButton,
+                                        width: taskId ? "50%" : "100%",
+                                    }}
+                                    onPress={() => {
+                                        onSubmit();
+                                    }}
+                                >
+                                    <Text style={formStyleSheet.formButtonText}>
+                                        Save
+                                    </Text>
+                                    <Ionicons
+                                        name="checkmark"
+                                        size={Rem.XLARGE}
+                                        color={palette.secondaryContrast}
+                                    ></Ionicons>
+                                </Pressable>
+                            ) : (
+                                <Loading />
+                            )}
                         </View>
                     </View>
                 </Card>

@@ -1,0 +1,4 @@
+appId: com.taskmanager.taskmanager
+---
+- launchApp
+- tapOn: "Text on the screen"

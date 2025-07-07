@@ -11,10 +11,11 @@ import { Ionicons } from "@expo/vector-icons";
 import TimeSpan from "../TimeSpan";
 import TaskStatusBadge from "./TaskStatusBadge";
 import { useTaskRepository } from "@/store/repositories/task.repository";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { Card } from "../Card";
 import { useColors } from "@/store/colors";
+import { Loading } from "../Loading";
 
 export default function TaskCard({
     task,
@@ -24,6 +25,9 @@ export default function TaskCard({
     setTask: (task: Task) => void;
 }) {
     const router = useRouter();
+    const ref = useRef<View>(null);
+    const [height, setHeight] = useState(0);
+    const [loading, setLoading] = useState(false);
     const taskRepository = useTaskRepository((state) => state.repository);
     const palette = useColors((state) => state.palette);
 
@@ -43,9 +47,23 @@ export default function TaskCard({
     useEffect(() => {
         setTaskService(new TaskService(taskRepository));
     }, [taskRepository]);
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.measure((x, y, width, height) => {
+                setHeight(height);
+            });
+        }
+    }, [ref.current]);
+    if (loading) {
+        return (
+            <Card>
+                <Loading style={{ height: height }} />
+            </Card>
+        );
+    }
 
     return (
-        <Card style={{ padding: Rem.LARGE }}>
+        <Card ref={ref} style={{ padding: Rem.LARGE }}>
             <View style={styleSheet.container}>
                 <View style={styleSheet.bodyContainer}>
                     <Text style={{ fontSize: Typo.MEDIUM, fontWeight: "bold" }}>
@@ -80,10 +98,12 @@ export default function TaskCard({
                                 task.status === TaskStatus.COMPLETED
                                     ? TaskStatus.PENDING
                                     : TaskStatus.COMPLETED;
+                            setLoading(true);
                             const updatedTask = await taskService.save(
                                 auth.user,
                                 task
                             );
+                            setLoading(false);
                             setTask(updatedTask);
                         }}
                     >

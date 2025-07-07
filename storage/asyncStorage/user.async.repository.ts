@@ -21,7 +21,14 @@ export class UserAsyncRepository implements UserRepositoryInterface {
             return [];
         }
 
-        return (JSON.parse(users) as UserProps[]).map((user) => new User(user));
+        return (JSON.parse(users) as UserProps[]).map(
+            (user) =>
+                new User({
+                    ...user,
+                    createdAt: new Date(user.createdAt?.toString() || ""),
+                    updatedAt: new Date(user.updatedAt?.toString() || ""),
+                })
+        );
     }
 
     async setUsers(users: User[]): Promise<void> {

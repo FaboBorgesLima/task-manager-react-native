@@ -14,6 +14,8 @@ export const useColors = create<{
         primaryContrast: "#fff",
         warning: "#ffe4b5",
         warningContrast: "#f59e0b",
+        error: "#f00",
+        errorContrast: "#fff",
         success: "#16a34a",
         successContrast: "#fff",
     },
@@ -32,4 +34,6 @@ export type Colors = {
     warningContrast: string;
     success: string;
     successContrast: string;
+    error: string;
+    errorContrast: string;
 };

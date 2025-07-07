@@ -12,11 +12,8 @@ import { useAuthRepository } from "@/store/repositories/auth.repository";
 import { useEmailValidation } from "@/store/register.validation";
 import { useAxiosStore } from "@/store/axios.store";
 import axios from "axios";
-import { TaskHttpRespository } from "@/storage/http/task.http.respository";
-import { UserHttpRepository } from "@/storage/http/user.http.repository";
+import { MeRepository } from "@/storage/asyncStorage/me.respository";
 import { AuthHttpRepository } from "@/storage/http/auth.http.respository";
-import { useTaskRepository } from "@/store/repositories/task.repository";
-import { useUserRepository } from "@/store/repositories/user.repository";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -28,12 +25,10 @@ export default function Login() {
 
     const router = useRouter();
     const authStore = useAuthStore();
+    const meRepository = new MeRepository();
     const { setAxiosInstance, axiosInstance } = useAxiosStore();
     const palette = useColors((state) => state.palette);
     const formStyleSheet = getFormStyleSheet(palette);
-    const setTaskRepository = useTaskRepository((state) => state.setRepository);
-    const setUserRepository = useUserRepository((state) => state.setRepository);
-    const setAuthRepository = useAuthRepository((state) => state.setRepository);
 
     const handleLogin = async () => {
         const authService = new AuthService(
@@ -46,25 +41,18 @@ export default function Login() {
                 password,
             });
             authStore.setAuth(auth);
+            meRepository.setMe(auth);
 
-            if (!(authRepository instanceof AuthHttpRepository)) {
-                throw new Error(
-                    "Auth repository is not an instance of AuthHttpRepository"
-                );
+            if (authRepository instanceof AuthHttpRepository) {
+                const newInstance = axios.create({
+                    baseURL: axiosInstance?.getUri(),
+                    headers: {
+                        Authorization: `Bearer ${auth.token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                setAxiosInstance(newInstance);
             }
-
-            const newInstance = axios.create({
-                baseURL: axiosInstance?.getUri(),
-                headers: {
-                    Authorization: `Bearer ${auth.token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            setAxiosInstance(newInstance);
-
-            setTaskRepository(new TaskHttpRespository(newInstance));
-            setUserRepository(new UserHttpRepository(newInstance));
-            setAuthRepository(new AuthHttpRepository(newInstance));
 
             router.replace("/(task)");
         } catch (error) {
