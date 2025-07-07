@@ -88,8 +88,8 @@ I separated components like `Card`, `PressableCard`, `TaskCard` and `TaskForm` t
 ## Sprints chronogram
 
 -   [x] Base project structure (2 week)
--   [ ] User management (4 week)
--   [ ] Task management (6 week)
+-   [x] User management (4 week)
+-   [x] Task management (6 week)
 
 Obs: If in the end there is too much "free time", i will create more sprints and goals.
 
